@@ -1,5 +1,5 @@
 import { Exchange, binance, coinbase } from "ccxt";
-import { Context, FetchPriceOptions, Price } from "./types";
+import { Context, FetchPriceOptions, Price, Timeframe } from "./types";
 
 export const getPriceFromExchange = async(exchange: Exchange, options: FetchPriceOptions): Promise<Price> => {
   const result = await exchange.fetchOHLCV(options.pair, options.timeframe, options.since.getTime(), options.limit);
@@ -18,41 +18,65 @@ export const getPriceFromExchange = async(exchange: Exchange, options: FetchPric
   };
 };
 
-export const getPriceEveryXMinutes = (context: Context, exchangeAssets: Record<string, string[]>, minutes: number) => {
-  const exchanges = Object.keys(exchangeAssets).map(key => {
-    if (key == "binance") {
-      return {
-        exchange: new binance(),
-        pairs: exchangeAssets[key],
-      }
-    }
-    if (key == "coinbase") {
-      return {
-        exchange: new coinbase(),
-        pairs: exchangeAssets[key],
-      }
-    }
+export const getExchange = (name: string) => {
+  if (name == "binance") {
+    return new binance();
+  }
+  if (name == "coinbase") {
+    return new coinbase();
+  }
+  throw new Error(`Exchange unknown ${name}`);
+};
 
-    return undefined;
-  }).filter(value => value !== undefined);
+export const timeframeToIntervalMs = (timeframe: Timeframe) => {
+  if (timeframe === "1m") {
+    return 60 * 1000;
+  }
+  if (timeframe === "5m") {
+    return 5 * 60 * 1000;
+  }
+  if (timeframe === "1h") {
+    return 60 * 60 * 1000;
+  }
+  if (timeframe === "4h") {
+    return 4 * 60 * 60 * 1000;
+  }
+  if (timeframe === "6h") {
+    return 6 * 60 * 60 * 1000;
+  }
+  if (timeframe === "12h") {
+    return 12 * 60 * 60 * 1000;
+  }
+  if (timeframe === "1d") {
+    return 24 * 60 * 60 * 1000;
+  }
+  if (timeframe === "1w") {
+    return 7 * 24 * 60 * 60 * 1000;
+  }
 
-  return () => {
+  throw new Error(`Missing timeframe support for ${timeframe}`)
+}
+
+export const generateGetPriceEveryXMs = (context: Context, exchange: string, pairs: string[]) => {
+  const _exchange = getExchange(exchange);
+
+  return (timeframe: Timeframe) => {
+    const ms = timeframeToIntervalMs(timeframe);
     const fn = async() => {
-      const result = await Promise.all(exchanges.map(exchangeAndPairs => Promise.all(exchangeAndPairs!
-        .pairs
-        .map(async pair => await getPriceFromExchange(exchangeAndPairs!.exchange, {
+      const result =
+        await Promise.all(pairs
+        .map(async pair => await getPriceFromExchange(_exchange, {
           pair,
-          timeframe: "1m",
-          since: new Date(Date.now() - 60 * 1000),
+          timeframe: timeframe,
+          since: new Date(Date.now() - ms),
           limit: 1,
-        }))),
-      ));
-
-      console.log(result);
+        })));
+       
+      console.log(result, timeframe);
     };
     fn();
 
-    const id = setInterval(fn, minutes * 60 * 1000); 
+    const id = setInterval(fn, ms); 
 
     return () => {
       clearInterval(id);

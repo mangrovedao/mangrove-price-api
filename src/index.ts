@@ -1,13 +1,11 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-import { startApp } from './app';
 import { enableLogging } from './logger/logger';
 import { handleErrors } from './errors';
 import { getConfig } from './config/configUtils';
-import { binance } from 'ccxt';
-import { getPriceEveryXMinutes, getPriceFromExchange } from './price-api';
-import { Price } from './types';
+import { generateGetPriceEveryXMs } from './price-api';
+import { Context, Timeframe } from './types';
 
 async function main() {
   enableLogging();
@@ -16,13 +14,21 @@ async function main() {
  
   const config = getConfig();
 
-  console.log(config);
-
-  const start = getPriceEveryXMinutes({
+  const context: Context = {
     prices: {},
-  }, config.exchangeAssets, 1);
+  };
 
-  start();
+  const timersFns = Object.keys(config.exchangeAssets).map(exchange => generateGetPriceEveryXMs(context, exchange, config.exchangeAssets[exchange].pairs));
+
+  const stops = Object.keys(config.exchangeAssets).map((exchange, index) => {
+    const stops = config.exchangeAssets[exchange].timeframes
+      .map(timeframe => timersFns[index](timeframe as Timeframe));
+
+    return () => {
+      stops.forEach(stop => stop());
+    };
+  });
+
 }
 
 main();

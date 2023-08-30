@@ -1,4 +1,7 @@
 export type Config = {
   port: number;
-  exchangeAssets: Record<string, string[]>;
+  exchangeAssets: Record<string, {
+    pairs: string[],
+    timeframes: string[],
+  }>;
 };

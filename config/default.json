@@ -1,4 +1,4 @@
 {
   "logLevel": "info",
-  "exchangeAssets": "{\"binance\": [\"ETH/USD\"]}"
+  "exchangeAssets": "{\"binance\": {\"pairs\": [\"ETH/USD\"], \"timeframes\": [\"1m\"]} }"
 }
