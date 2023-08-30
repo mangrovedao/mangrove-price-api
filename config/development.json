@@ -1,0 +1,84 @@
+{
+  "logLevel": "info",
+  "healthCheckableServices": "[]",
+  "rpcsProviders": "[]",
+  "subrgaphProviders": "[]",
+  "maxFailedCount": 5,
+  "cycleBeforeDecreasedFailedCount": 30,
+  "defaultTimeoutMs": 2000,
+  "blockDelayBufferMinutes": 2,
+  "port": 4444,
+  "arbitrageMonitoringConfigs": [
+    {
+      "pollingIntervalMs": 60000,
+      "tokens": [
+        { 
+          "name": "USDC", 
+          "limit": 0 
+        },
+        {
+          "name": "USDT",
+          "limit": 0
+        }
+      ],
+      "chainName": "matic",
+      "admin": " 0x6Dec10ce3f47B6AD8AE91B511eb79610eb8ba47b",
+      "arbitrager": "0xD69bD4Bc3DBed08324A1db4fcA7A59832aA89017",
+      "arbitrageContract": "0x774D3089F08ba6cc67FD8EAC06040936D096308D"
+    }
+  ],
+  "midPriceMarkets": [{
+    "chainName": "matic",
+    "pollingIntervalMs": 60000,
+    "markets": [{
+      "base": "USDC",
+      "quote": "USDT"
+    }] }],
+  "nodeProvidersForMgv": [
+    {
+      "chainName": "matic",
+      "httpUrl": "https://rpc-main",
+      "wsUrl": "wss://ws-main",
+      "type": "websocket"
+    },{
+      "chainName": "maticmum",
+      "httpUrl": "https://rpc-main",
+      "wsUrl": "wss://ws-main",
+      "type": "websocket"
+    }
+  ],
+  "dAppEnvironmentUrl": "https://draft.mangrove.exchange/environmentInformation.json",
+  "dAppAddress": [{
+    "network": "matic",
+    "pollingIntervalMs":60000,
+    "addresses": [
+      "Mangrove",
+      "MgvReader",
+      "MgvOracle",
+      "MgvCleaner",
+      "KandelSeeder",
+      "AaveKandelSeeder",
+      "MangroveOrder",
+      "MangroveOrder-Router",
+      "AavePooledRouter",
+      "USDC",
+      "USDT"
+    ]
+  },{
+    "network": "maticmum",
+    "pollingIntervalMs":60000,
+    "addresses": [
+      "Mangrove",
+      "MgvReader",
+      "MgvOracle",
+      "MgvCleaner",
+      "KandelSeeder",
+      "AaveKandelSeeder",
+      "MangroveOrder",
+      "MangroveOrder-Router",
+      "AavePooledRouter",
+      "USDC",
+      "USDT"
+    ]
+  }]
+}

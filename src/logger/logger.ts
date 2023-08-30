@@ -1,0 +1,155 @@
+import inspect from 'object-inspect';
+import os from 'os';
+
+const stringifyData = (data: any) => {
+  if (typeof data == 'string') return data;
+  else return inspect(data);
+};
+
+import { Format, format } from 'logform';
+import truncate from 'json-truncate';
+import loglevel from 'loglevel';
+import { MESSAGE, LEVEL } from 'triple-beam';
+import { getEnvOrThrow } from '../env';
+import config from '../config/config';
+
+export type LogMetadata = {
+  data?: object;
+  stack?: string;
+};
+
+// wrapping logger type to prepare for future backend logging swaps
+export type CommonLogger = loglevel.Logger;
+
+// These are loglevel's levels
+const levels = {
+  trace: 0,
+  debug: 1,
+  info: 2,
+  warn: 3,
+  error: 4,
+  silent: 5
+};
+
+export const createLogger = (
+  consoleFormatLogger: Format,
+  logLevel: string,
+  noColor?: string
+): CommonLogger => {
+  /* Expose winston-style interface to the logger */
+  // generate fresh logger
+  const logger = loglevel.getLogger(Symbol());
+  // remember default log method generator
+  const originalFactory = logger.methodFactory;
+
+  // configure colorizer
+  const opts = {
+    colors: {
+      error: 'red',
+      debug: 'blue',
+      warn: 'yellow',
+      data: 'grey',
+      info: 'green',
+      verbose: 'cyan',
+      silly: 'magenta',
+      custom: 'yellow'
+    }
+  };
+  const colorizer = format.colorize(opts);
+
+  // generate new logging methods
+  logger.methodFactory = function (methodName, logLevel, loggerName) {
+    // remember default log method
+    const rawMethod = originalFactory(methodName, logLevel, loggerName);
+
+    // create formatter with logform
+    let thisFormat: Format;
+    if (noColor) {
+      thisFormat = format.combine(
+        format.splat(),
+        format.timestamp(),
+        format.errors({ stack: true }),
+        consoleFormatLogger
+      );
+    } else {
+      thisFormat = format.combine(
+        colorizer,
+        format.splat(),
+        format.timestamp(),
+        format.errors({ stack: true }),
+        consoleFormatLogger
+      );
+    }
+
+    // generate actual logging method
+    return function (message, metadata) {
+      // send log info to formatter
+      const formatted = thisFormat.transform({
+        // convert to logLevel string, since that is what logform expects
+        level: methodName,
+        [LEVEL]: methodName,
+        message,
+        ...metadata
+      });
+
+      if (typeof formatted != 'boolean') {
+        // retrieve formatted message, send to raw method
+        rawMethod(formatted[MESSAGE as any]);
+      }
+    };
+  };
+  // simultaneously set logger level as low as possible & apply new methodFactory.
+  const logLevelNum = (levels as any)[logLevel.toLowerCase()];
+  if (logLevelNum === undefined) {
+    throw Error(`Unknown logLevel: ${logLevel}`);
+  }
+  logger.setLevel(logLevelNum);
+  return logger as CommonLogger;
+};
+
+// This processor must be used when logging large objects, because of Winston memory consumption in that case
+export const logdataLimiter = (data: object): string => {
+  return truncate(data, { maxDepth: 3, replace: '[Truncated]' });
+};
+
+export { format };
+
+export default createLogger;
+
+export function createConsoleLogger(loggingEnabled: () => boolean, logLevel: string): CommonLogger {
+  const consoleLogFormat = format.combine(
+    format((info: any) => loggingEnabled() && info)(),
+    format.printf(({ level, message, timestamp, ...metadata }: any) => {
+      let msg = `${timestamp} [${level}] `;
+      if (metadata.contextInfo !== undefined) {
+        msg += `[${metadata.contextInfo}] `;
+      }
+      msg += message;
+      if (metadata.data !== undefined) {
+        msg += ` | data: ${stringifyData(metadata.data)}`;
+      }
+      if (metadata.stack !== undefined) {
+        msg += `${os.EOL}${metadata.stack}`;
+      }
+      return msg;
+    })
+  );
+
+  return createLogger(consoleLogFormat, logLevel, process.env['NO_COLOR']);
+}
+
+let loggingEnabled = false;
+
+const logLevel = config.get<string>('logLevel');
+export const logger = createConsoleLogger(() => loggingEnabled, logLevel);
+
+import { enableLogging as enableMangroveJsLogging } from '@mangrovedao/mangrove.js';
+
+export function enableLogging(): void {
+  loggingEnabled = true;
+  enableMangroveJsLogging() 
+}
+
+export function disableLogging(): void {
+  loggingEnabled = false;
+}
