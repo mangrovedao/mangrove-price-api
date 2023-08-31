@@ -1,57 +1,7 @@
 {
   "logLevel": "LOG_LEVEL",
-  "dAppEnvironmentUrl": "DAPP_ENVIRONMENT_URL",
-  "healthCheckableServices": {
-    "__name": "HEALTH_CHECKABLE_SERVICES",
-    "__type": "json"
-  },
-  "rpcsProviders": {
-    "__name": "RPCS_PROVIDERS",
-    "__type": "json"
-  },
-  "subgraphProviders": {
-    "__name": "SUBGRAPH_PROVIDERS",
-    "__type": "json"
-  },
-  "maxFailedCount": {
-    "__name": "MAX_FAILED_COUNT",
-    "__type": "number"
-  },
-  "cycleBeforeDecreasedFailedCount": {
-    "__name": "CYCLE_BEFORE_DECREASED_FAILED_COUNT",
-    "__type": "number"
-  },
-  "defaultTimeoutMs": {
-    "__name": "DEFAULT_TIMEOUT_MS",
-    "__type": "number"
-  },
-  "blockDelayBufferMinutes": {
-    "__name": "BLOCK_DELAY_BUFFER_MINUTES",
-    "__type": "number"
-  },
-  "herokuApiKey": "HEROKU_API_KEY",
-  "port": {
-    "__name": "PORT",
-    "__type": "number"
-  },
-  "arbitrageMonitoringConfigs": {
-    "__name": "ARBITRAGE_MONITORING_CONFIGS",
-    "__type": "json"
-  },
-  "midPriceMarkets": {
-    "__name": "MID_PRICE_MARKETS",
-    "__type": "json"
-  },
-  "nodeProvidersForMgv": {
-    "__name": "NODE_PROVIDERS_FOR_MGV",
-    "__type": "json"
-  },
-  "kandelsByNetwork": {
-    "__name": "KANDELS_BY_NETWORK",
-    "__type": "json"
-  },
-  "dAppAddresses": {
-    "__name": "DAPP_ADDRESSES",
+  "exchangeAssets": {
+    "__name": "EXCHANGES_ASSETS",
     "__type": "json"
   }
 }
