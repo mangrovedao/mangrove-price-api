@@ -1,24 +1,29 @@
-import { Exchange, binance, coinbase } from "ccxt";
+import { Exchange, binance, coinbase, kraken } from "ccxt";
 import { Context, FetchPriceOptions, Price, Timeframe } from "./types";
 import logger from "@mangrovedao/mangrove.js/dist/nodejs/util/logger";
 
-export const getPriceFromExchange = async(exchange: Exchange, options: FetchPriceOptions): Promise<Price> => {
-  const result = await exchange.fetchOHLCV(options.pair, options.timeframe, options.since.getTime(), options.limit);
+export const getPriceFromExchange = async(exchange: Exchange, options: FetchPriceOptions): Promise<Price | undefined> => {
+  try {
+    const result = await exchange.fetchOHLCV(options.pair, options.timeframe, options.since.getTime(), options.limit);
+    if (!result || result.length == 0) {
+      throw new Error(`Didn't receive price for exchange ${exchange.name}`);
+    }
 
-  if (!result || result.length == 0) {
-    throw new Error(`Didn't receive price for exchange ${exchange.name}`);
+    logger.info(`Successfully get price for ${exchange.name}, ${options.pair}, ${options.timeframe}`);
+
+    return {
+      open: result[0][1],
+      high: result[0][2],
+      low: result[0][3],
+      close: result[0][4],
+      volume: result[0][5],
+      date: new Date(result[0][0]),
+    };
+  } catch(e) {
+    logger.error(`Couldn't get price for ${exchange.name}, ${options.pair}, ${options.timeframe}`, {
+      data: e,
+    });
   }
-
-  logger.info(`Successfully get price for ${exchange.name}, ${options.pair}, ${options.timeframe}`);
-
-  return {
-    open: result[0][1],
-    high: result[0][2],
-    low: result[0][3],
-    close: result[0][4],
-    volume: result[0][5],
-    date: new Date(result[0][0]),
-  };
 };
 
 export const getExchange = (name: string) => {
@@ -27,6 +32,9 @@ export const getExchange = (name: string) => {
   }
   if (name == "coinbase") {
     return new coinbase();
+  }
+  if (name == "kraken") {
+    return new kraken();
   }
   throw new Error(`Exchange unknown ${name}`);
 };
@@ -88,6 +96,9 @@ export const generateGetPriceEveryXMs = (context: Context, exchange: string, pai
       }
 
       result.forEach((price, index) => {
+        if (!price) {
+          return;
+        }
         const pair = pairs[index];
         context.prices[exchange][timeframe][pair] = price;
       });

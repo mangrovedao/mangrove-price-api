@@ -7,6 +7,7 @@ import { getConfig } from './config/configUtils';
 import { generateGetPriceEveryXMs } from './price-api';
 import { Context, Timeframe } from './types';
 import { startApp } from './app';
+import logger from '@mangrovedao/mangrove.js/dist/nodejs/util/logger';
 
 async function main() {
   enableLogging();
@@ -18,6 +19,10 @@ async function main() {
   const context: Context = {
     prices: {},
   };
+
+  logger.info("Start app with params", {
+    data: config,
+  });
 
   const timersFns = Object.keys(config.exchangeAssets).map(exchange => generateGetPriceEveryXMs(context, exchange, config.exchangeAssets[exchange].pairs));
 
