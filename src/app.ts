@@ -6,8 +6,9 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import { AddressInfo } from 'net';
 import { Config } from './config/types';
+import { Context } from './types';
 
-export const startApp = async (config: Config) => {
+export const startApp = async (config: Config, context: Context) => {
   const app = express();
 
   app.use(cors());
@@ -28,6 +29,28 @@ export const startApp = async (config: Config) => {
   }
 
   logger.info(`🚀 Server ready at ${url}`);
+
+
+  app.get("/prices/:token0/:token1/:timeframe", (req, res) => {
+    const pair = `${req.params.token0}/${req.params.token1}`
+    const prices = Object.keys(context.prices)
+      .map(exchange => {
+        if (!context.prices[exchange][req.params.timeframe] || !context.prices[exchange][req.params.timeframe][pair]) {
+          return undefined;
+        }
+
+        return context.prices[exchange][req.params.timeframe][pair];
+      })
+      .filter(value => value !== undefined)
+      .sort((a, b) => (b!.date.getTime() - a!.date.getTime())); // sort in descing order
+
+    if (prices.length === 0) {
+      return res.status(404).send();
+    }
+
+    return res.status(200).json(prices[0]);
+  });
+
 
   return () => {
     logger.warn(`Stopped server at ${url}`);

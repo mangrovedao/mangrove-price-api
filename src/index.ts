@@ -6,6 +6,7 @@ import { handleErrors } from './errors';
 import { getConfig } from './config/configUtils';
 import { generateGetPriceEveryXMs } from './price-api';
 import { Context, Timeframe } from './types';
+import { startApp } from './app';
 
 async function main() {
   enableLogging();
@@ -20,15 +21,16 @@ async function main() {
 
   const timersFns = Object.keys(config.exchangeAssets).map(exchange => generateGetPriceEveryXMs(context, exchange, config.exchangeAssets[exchange].pairs));
 
-  const stops = Object.keys(config.exchangeAssets).map((exchange, index) => {
-    const stops = config.exchangeAssets[exchange].timeframes
-      .map(timeframe => timersFns[index](timeframe as Timeframe));
+  const stops = await Promise.all(Object.keys(config.exchangeAssets).map(async(exchange, index) => {
+    const stops = await Promise.all(config.exchangeAssets[exchange].timeframes
+      .map(timeframe => timersFns[index](timeframe as Timeframe)));
 
     return () => {
       stops.forEach(stop => stop());
     };
-  });
+  }));
 
-}
+  startApp(config, context);
+};
 
 main();

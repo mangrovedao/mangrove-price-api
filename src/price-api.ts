@@ -60,7 +60,7 @@ export const timeframeToIntervalMs = (timeframe: Timeframe) => {
 export const generateGetPriceEveryXMs = (context: Context, exchange: string, pairs: string[]) => {
   const _exchange = getExchange(exchange);
 
-  return (timeframe: Timeframe) => {
+  return async(timeframe: Timeframe) => {
     const ms = timeframeToIntervalMs(timeframe);
     const fn = async() => {
       const result =
@@ -71,10 +71,26 @@ export const generateGetPriceEveryXMs = (context: Context, exchange: string, pai
           since: new Date(Date.now() - ms),
           limit: 1,
         })));
-       
-      console.log(result, timeframe);
+      
+      let exchangeValue = context.prices[exchange];
+      if (!exchangeValue) {
+        context.prices[exchange] = {}
+        exchangeValue = context.prices[exchange];
+      }
+
+      let timeframeValue = context.prices[exchange][timeframe];
+      if (!timeframeValue) {
+        context.prices[exchange][timeframe] = {};
+        timeframeValue = context.prices[exchange][timeframe];
+      }
+
+      result.forEach((price, index) => {
+        const pair = pairs[index];
+        context.prices[exchange][timeframe][pair] = price;
+      });
+
     };
-    fn();
+    await fn();
 
     const id = setInterval(fn, ms); 
 
