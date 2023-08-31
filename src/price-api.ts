@@ -1,5 +1,6 @@
 import { Exchange, binance, coinbase } from "ccxt";
 import { Context, FetchPriceOptions, Price, Timeframe } from "./types";
+import logger from "@mangrovedao/mangrove.js/dist/nodejs/util/logger";
 
 export const getPriceFromExchange = async(exchange: Exchange, options: FetchPriceOptions): Promise<Price> => {
   const result = await exchange.fetchOHLCV(options.pair, options.timeframe, options.since.getTime(), options.limit);
@@ -7,6 +8,8 @@ export const getPriceFromExchange = async(exchange: Exchange, options: FetchPric
   if (!result || result.length == 0) {
     throw new Error(`Didn't receive price for exchange ${exchange.name}`);
   }
+
+  logger.info(`Successfully get price for ${exchange.name}, ${options.pair}, ${options.timeframe}`);
 
   return {
     open: result[0][1],
