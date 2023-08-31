@@ -1,5 +1,5 @@
 {
-  "name": "api-proxy",
+  "name": "mangrove-price-api",
   "version": "0.0.1",
   "main": "src/index.ts",
   "author": "mangrovedao",

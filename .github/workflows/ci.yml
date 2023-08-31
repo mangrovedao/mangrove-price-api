@@ -19,7 +19,7 @@ env:
   NODE_ENV: test
 
 jobs:
-  mangrove-monitoring-service:
+  mangrove-price-api:
     runs-on: ubuntu-latest
 
     steps:
