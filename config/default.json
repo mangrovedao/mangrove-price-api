@@ -1,4 +1,5 @@
 {
   "logLevel": "info",
+  "port": 3333,
   "exchangeAssets": "{\"binance\": {\"pairs\": [\"ETH/USD\"], \"timeframes\": [\"1m\"]} }"
 }
