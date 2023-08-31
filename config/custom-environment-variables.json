@@ -1,5 +1,6 @@
 {
   "logLevel": "LOG_LEVEL",
+  "port": "PORT",
   "exchangeAssets": {
     "__name": "EXCHANGES_ASSETS",
     "__type": "json"
