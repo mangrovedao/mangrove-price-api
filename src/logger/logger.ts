@@ -10,8 +10,7 @@ import { Format, format } from 'logform';
 import truncate from 'json-truncate';
 import loglevel from 'loglevel';
 import { MESSAGE, LEVEL } from 'triple-beam';
-import { getEnvOrThrow } from '../env';
-import config from '../config/config';
+import { config } from '../config/config';
 
 export type LogMetadata = {
   data?: object;
