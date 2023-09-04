@@ -4,5 +4,9 @@
   "exchangeAssets": {
     "__name": "EXCHANGES_ASSETS",
     "__type": "json"
+  },
+  "replacements": {
+    "__name": "REPLACEMENTS",
+    "__type": "json"
   }
 }

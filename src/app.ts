@@ -19,7 +19,11 @@ export const reversePrice = (price: Price) => {
 };
 
 export const getPrice = (context: Context, pair: string, timeframe: string) => {
-  pair = pair.replace('WETH', 'ETH');
+  pair = Object.keys(context.replacements).reduce((acc, key) =>{
+    acc = acc.replace(key, context.replacements[key]);
+    return acc;
+  }, pair);
+
   const prices = Object.keys(context.prices)
     .map(exchange => {
       if (!context.prices[exchange][timeframe] || !context.prices[exchange][timeframe][pair]) {
