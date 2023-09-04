@@ -1,5 +1,6 @@
 {
   "logLevel": "info",
   "port": 3333,
-  "exchangeAssets": "{\"binance\": {\"pairs\": [\"ETH/USD\"], \"timeframes\": [\"1m\"]} }"
+  "exchangeAssets": "{\"binance\": {\"pairs\": [\"ETH/USD\"], \"timeframes\": [\"1m\"]} }",
+  "replacements": {"WETH": "ETH"}
 }
