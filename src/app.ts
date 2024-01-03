@@ -8,13 +8,14 @@ import { AddressInfo } from 'net';
 import { Config } from './config/types';
 import { Context, Price } from './types';
 
-export const reversePrice = (price: Price) => {
+export const reversePrice = (price: Price): Price => {
   return {
     open: 1 / price.open,
     high: 1 / price.high,
     low: 1 / price.low,
     close: 1 / price.close,
     volume: price.volume,
+    date: price.date,
   };
 };
 
@@ -64,6 +65,7 @@ export const startApp = async (config: Config, context: Context) => {
     let pair = `${req.params.token0}/${req.params.token1}`
     let prices = getPrice(context, pair, req.params.timeframe);
     let reversed = false;
+
     if (prices.length === 0)  {
       pair = `${req.params.token1}/${req.params.token0}`;
       prices = getPrice(context, pair, req.params.timeframe);
