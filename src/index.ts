@@ -18,6 +18,7 @@ async function main() {
 
   const context: Context = {
     prices: {},
+    replacements: config.replacements,
   };
 
   logger.info("Start app with params", {

@@ -4,4 +4,5 @@ export type Config = {
     pairs: string[],
     timeframes: string[],
   }>;
+  replacements: Record<string, string>;
 };

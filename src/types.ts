@@ -17,5 +17,6 @@ export type Price = {
 };
 
 export type Context = {
+  replacements: Record<string, string>;
   prices: Record<string, Record<string, Record<string, Price>>>;
 };;
