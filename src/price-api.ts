@@ -77,7 +77,7 @@ export const generateGetPriceEveryXMs = (context: Context, exchange: string, pai
       const result =
         await Promise.all(pairs
         .map(async pair => await getPriceFromExchange(_exchange, {
-          pair,
+          pair: pair,
           timeframe: timeframe,
           since: new Date(Date.now() - ms),
           limit: 1,
