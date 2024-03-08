@@ -8,5 +8,6 @@
   "replacements": {
     "__name": "REPLACEMENTS",
     "__type": "json"
-  }
+  },
+  "defaultExchange": "DEFAULT_EXCHANGE"
 }
