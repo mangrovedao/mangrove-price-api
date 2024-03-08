@@ -90,7 +90,7 @@ export const startApp = async (config: Config, context: Context) => {
       `${req.params.token0}/${req.params.token1}`,
       req.params.timeframe,
       since.getTime(),
-      1
+      1000
     );
 
     if (!result || result.length == 0) {
