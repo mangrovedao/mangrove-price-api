@@ -85,9 +85,15 @@ export const startApp = async (config: Config, context: Context) => {
 
     const since = new Date(req.params.since);
 
+    const t0 = req.params.token0;
+    const t1 = req.params.token1;
+
+    const token0 = context.replacements[t0] || t0;
+    const token1 = context.replacements[t1] || t1;
+
     console.log(since, since.getTime());
     const result = await exchange.fetchOHLCV(
-      `${req.params.token0}/${req.params.token1}`,
+      `${token0}/${token1}`,
       req.params.timeframe,
       since.getTime(),
       1
